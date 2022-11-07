@@ -128,6 +128,7 @@ def main():
 if __name__ == "__main__":
     """
     The video explains well about how to perform the simplex algorithm using matrix notation
+    https://www.youtube.com/watch?v=0qaAG8wdGHQ
     https://www.youtube.com/watch?v=k3fF7r50Vc0
     """
     main()
