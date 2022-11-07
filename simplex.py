@@ -3,6 +3,8 @@ import numpy as np
 def update_base_xn(prd1, prd2, base):
     minimum = []
     for j in range(len(prd1)):
+        # teste da razão, nele o divisor precisa ser maior ou igual a zero
+        # logo, é preciso acrescentar um if aqui
         minimum = np.append(minimum, prd1[j] / prd2[j])
     res = prd1 - prd2 * min(minimum)
     for k in range(len(res)):
