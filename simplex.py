@@ -3,14 +3,18 @@ import numpy as np
 def update_base_xn(prd1, prd2, base):
     minimum = []
     for j in range(len(prd1)):
-        # teste da razão, nele o divisor precisa ser maior ou igual a zero
-        # logo, é preciso acrescentar um if aqui
-        minimum = np.append(minimum, prd1[j] / prd2[j])
-    res = prd1 - prd2 * min(minimum)
+        if prd2[j] > 0:  # Ratio test, in it the divisor must be greater than zero
+            minimum = np.append(minimum, prd1[j] / prd2[j])
+    if minimum:
+        res = prd1 - prd2 * min(minimum)
+    else:
+        print("This is an unlimited problem, so there is no optimal solution.")
+        return False, False, False
+
     for k in range(len(res)):
         if round(float(res[k]), 4) == 0:
             leave_the_base = base[k]
-            return k, leave_the_base
+            return k, leave_the_base, True
 
 def print_var(txt, prd1):
     print("\nThe basic solution is:")
@@ -39,37 +43,35 @@ def main():
     0.4 x_1 + 0.5 x_2 +   0x_3 + 0x_4 + 1x_5 = 3
     """
     a = np.array([
-        [0.5, 0.3, 1, 0, 0, 3],
-        [0.1, 0.2, 0, 1, 0, 1],
-        [0.4, 0.5, 0, 0, 1, 3],
+        [-1,  1, 1, 0, 3],
+        [ 2, -3, 0, 1, 3],
+        # [-1, 1, 0, 0, 1, 4],
     ], dtype=np.float64)
 
     """
     Objetive function c
     """
     c = np.array([
-        [-3], [-2], [0], [0], [0],
+        [-2], [-2], [0], [0], [0],
     ], dtype=np.float64)
 
     """
     Required to set the transposed 'p'
     """
-    base = [3, 4, 5]  # initial base
+    base = [3, 4]  # initial base
     xn   = [1, 2]
-    b = a[0:, 5:6]  # In this case: [3, 1, 3]
+    b = a[:, -1:]  # In this case: [6, 4, 4]
 
     while True:
-
-        """There is a better way to write this step of the algorithm."""
-        c1 = c[base[0]-1:base[0]]
-        c2 = c[base[1]-1:base[1]]
-        c3 = c[base[2]-1:base[2]]
-        ct = np.concatenate((c1, c2, c3), axis=1)
-
-        column1 = a[0:, (base[0]-1):base[0]]
-        column2 = a[0:, (base[1]-1):base[1]]
-        column3 = a[0:, (base[2]-1):base[2]]
-        Bn = np.concatenate((column1, column2, column3), axis=1)
+        """
+        Assemble the transposed matrix c only with the values corresponding to those of the base.
+        Then, following the same idea, assemble matrix B.
+        """
+        ct  = np.zeros((1, len(base)))
+        Bn = np.zeros((len(base), len(base)))
+        for i in range(len(base)):
+            ct[:, i] = (c[base[i]-1:base[i]])
+            Bn[:, i:] = a[0:, (base[i]-1):base[i]]
 
         """
         Given the null variables
@@ -81,7 +83,7 @@ def main():
         General Solution
         """
         Bn_inv = np.linalg.inv(Bn)
-        prd1 = np.dot(Bn_inv, b)
+        prd1 = np.dot(Bn_inv, b)  # xb - Represents the basic feasible solution
 
         prd2 = np.dot(Bn_inv, xn1)
         prd3 = np.dot(Bn_inv, xn2)
@@ -89,7 +91,7 @@ def main():
         txt = np.array([  # it only serves to help print the answer
             ['x'+str(base[0])],
             ['x'+str(base[1])],
-            ['x'+str(base[2])],
+            # ['x'+str(base[2])],
             ['x' + str(xn[0])],
             ['x' + str(xn[1])],
         ], dtype=str)
@@ -99,9 +101,9 @@ def main():
 
         # print_var(txt, prd1)
         pt = np.dot(ct, Bn_inv)
-        prod4 = np.dot(pt, b)
-        prod5 = -np.dot(pt, xn1) + c[xn[0]-1]
-        prod6 = -np.dot(pt, xn2) + c[xn[1]-1]
+        prod4 = np.dot(pt, b)  # fx = np.dot(ct, prd1)
+        prod5 = + c[xn[0]-1] - np.dot(pt, xn1)  # relative costs
+        prod6 = + c[xn[1]-1] - np.dot(pt, xn2)  # relative costs
 
         """
         The objective function written as a function of xn
@@ -116,13 +118,18 @@ def main():
             print_var(txt, prd1)
             break
         else:
+            ratio_test = True
             if float(prod5) < float(prod6):
                 """helps to know who enters and leaves the base"""
-                k, leave_the_base = update_base_xn(prd1, prd2, base)
+                k, leave_the_base, ratio_test = update_base_xn(prd1, prd2, base)
+                if ratio_test is False:
+                    break
                 base[k] = xn[0]  # enter_the_base
                 xn[0] = leave_the_base
             else:
-                k, leave_the_base = update_base_xn(prd1, prd3, base)
+                k, leave_the_base, ratio_test = update_base_xn(prd1, prd3, base)
+                if ratio_test is False:
+                    break
                 base[k] = xn[1]
                 xn[1] = leave_the_base
 
@@ -130,7 +137,7 @@ def main():
 if __name__ == "__main__":
     """
     The video explains well about how to perform the simplex algorithm using matrix notation
-    https://www.youtube.com/watch?v=0qaAG8wdGHQ
     https://www.youtube.com/watch?v=k3fF7r50Vc0
     """
     main()
+
