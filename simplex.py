@@ -1,11 +1,12 @@
 import numpy as np
 
+
 def update_base_xn(prd1, prd2, base):
     minimum = []
     for j in range(len(prd1)):
         if prd2[j] > 0:  # Ratio test, in it the divisor must be greater than zero
             minimum = np.append(minimum, prd1[j] / prd2[j])
-    if minimum:
+    if minimum.any():
         res = prd1 - prd2 * min(minimum)
     else:
         print("This is an unlimited problem, so there is no optimal solution.")
@@ -36,6 +37,7 @@ def print_objetive_function(prod4, prod5, prod6, xn):
 def main():
     """
                 Ax = b
+    Example:
     min f(x_1, x_2) = -3x_1 -2x_2 + 0x_3 + 0x_4 + 0x_5
     s.t.
     0.5 x_1 + 0.3 x_2 +   1x_3 + 0x_4 + 0x_5 = 3
@@ -43,24 +45,25 @@ def main():
     0.4 x_1 + 0.5 x_2 +   0x_3 + 0x_4 + 1x_5 = 3
     """
     a = np.array([
-        [-1,  1, 1, 0, 3],
-        [ 2, -3, 0, 1, 3],
-        # [-1, 1, 0, 0, 1, 4],
+        [3, -2, 1, 0,    1, 0, 0, 0,  3],
+        [-1, 1, -3, -4,  0, 1, 0, 0, -1],
+        [1,  3, 2, 4,    0, 0, 1, 0,  5],
+        [3,  4, 2, 5,    0, 0, 0, 1,  7],
     ], dtype=np.float64)
 
     """
     Objetive function c
     """
     c = np.array([
-        [-2], [-2], [0], [0], [0],
+        [-1], [-2], [-3], [-4], [0], [0], [0], [0],
     ], dtype=np.float64)
 
     """
     Required to set the transposed 'p'
     """
-    base = [3, 4]  # initial base
-    xn   = [1, 2]
-    b = a[:, -1:]  # In this case: [6, 4, 4]
+    base = [5, 6, 7, 8]  # initial base
+    xn   = [1, 2, 3, 4]
+    b = a[:, -1:]
 
     while True:
         """
@@ -78,6 +81,8 @@ def main():
         """
         xn1 = a[0:, (xn[0] - 1):xn[0]]
         xn2 = a[0:, (xn[1] - 1):xn[1]]
+        xn3 = a[0:, (xn[2] - 1):xn[2]]
+        xn4 = a[0:, (xn[3] - 1):xn[3]]
 
         """
         General Solution
@@ -96,8 +101,8 @@ def main():
             ['x' + str(xn[1])],
         ], dtype=str)
 
-        # print("The general solution is:")
-        # print(txt, "\n=\n", prd1, "\n-\n", prd2, "x", xn[0], "\n-\n", prd3, "x", xn[1])
+        print("The general solution is:")
+        print(txt, "\n=\n", prd1, "\n-\n", prd2, "x", xn[0], "\n-\n", prd3, "x", xn[1])
 
         # print_var(txt, prd1)
         pt = np.dot(ct, Bn_inv)
@@ -140,4 +145,5 @@ if __name__ == "__main__":
     https://www.youtube.com/watch?v=k3fF7r50Vc0
     """
     main()
+
 
