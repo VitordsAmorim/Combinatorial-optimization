@@ -32,7 +32,7 @@ def queue_size(cij_matrix):
         Determines the size of each of the queues, the first being
          half of the total edges +- 20% of the total size
         """
-    random.seed(10)
+    # random.seed(10)
     l1 = len(cij_matrix)
     porc = random.randint(-20, 21)
     first_l = int((l1 / 2) * (1 + porc / 100))
@@ -76,9 +76,10 @@ def local_search(line1, line2, cij_matrix):
     fo_min = evaluate(line1.copy(), line2.copy(), cij_matrix)
     best_l1, best_l2 = line1, line2
     line_unique = np.concatenate((best_l1, best_l2))
+    best_s = line_unique.copy()
     count = 0
-    for m in range(50):
-        for k in range(100):
+    for m in range(200):
+        for k in range(10):
             first_position  = random.randint(0, len(line_unique) - 1)
             second_position = random.randint(0, len(line_unique) - 1)
             if first_position != second_position:
@@ -87,11 +88,11 @@ def local_search(line1, line2, cij_matrix):
                 if new_fo < fo_min:
                     count = count + 1
                     fo_min = new_fo
-                    best_s = new_s
-                    best_l1 = new_s[:len(line1)]
-                    best_l2 = new_s[len(line1):]
-        line_unique = np.concatenate((best_l1, best_l2))
-    return best_l1, best_l2
+                    best_s = new_s.copy()
+                    # best_l1 = new_s[:len(line1)]
+                    # best_l2 = new_s[len(line1):]
+        line_unique = best_s.copy()  # np.concatenate((best_s[:len(line1)], best_s[len(line1):]))
+    return line_unique[:len(line1)].copy(), line_unique[len(line1):].copy()
 
 
 def relatorio(typeproblem, best_fitness, rodadas, deltat):
