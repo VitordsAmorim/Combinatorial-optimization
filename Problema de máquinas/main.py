@@ -73,13 +73,13 @@ def swap_positions(list, pos1, pos2):
 
 
 def local_search(line1, line2, cij_matrix):
-    fo_min = evaluate(line1.copy(), line2.copy(), cij_matrix)
+    fo_min = evaluate(line1, line2, cij_matrix)
     best_l1, best_l2 = line1, line2
     line_unique = np.concatenate((best_l1, best_l2))
     best_s = line_unique.copy()
     count = 0
-    for m in range(200):
-        for k in range(10):
+    for m in range(300):
+        for k in range(50):
             first_position  = random.randint(0, len(line_unique) - 1)
             second_position = random.randint(0, len(line_unique) - 1)
             if first_position != second_position:
@@ -124,7 +124,7 @@ def main():
         ['Instancia', 'Menor resultado', ' Melhor Resultado', ' Media', ' Desvio padrao', 'Intervalo de tempo'])
     f.close()
 
-    rodadas = 3  # numero de vezes que vai rodar para cada arquivo
+    rodadas = 10  # numero de vezes que vai rodar para cada arquivo
 
     path = 'Instâncias-Problema-das-Máquinas/'
     for _, _, arquivo in os.walk('Instâncias-Problema-das-Máquinas/'):
